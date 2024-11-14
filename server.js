@@ -10,6 +10,29 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 
+
+const getDataWithCloudflareBypass = async (url, params) => {
+  try {
+    const headers = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+      'Accept-Language': 'en-US,en;q=0.9',
+      'Accept-Encoding': 'gzip, deflate, br',
+      'Connection': 'keep-alive',
+    };
+
+    const response = await axios.get(url, {
+      headers: headers,
+      params: params,
+      timeout: 5000, 
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw new Error('Failed to bypass Cloudflare or fetch data');
+  }
+};
+
 app.get('/api/news/top-headlines', async (req, res) => {
   const { country = 'us' } = req.query;
   console.log(`Fetching top headlines for country: ${country}`); // Log the request
@@ -45,6 +68,18 @@ app.get('/api/mediastack/news', async (req, res) => {
     res.json(response.data);
   } catch (error) {
     res.status(500).json({ error: 'Error fetching data from Mediastack' });
+  }
+});
+
+
+app.get('/api/cloudflare-bypass', async (req, res) => {
+  const { url, params } = req.query;
+
+  try {
+    const data = await getDataWithCloudflareBypass(url, params);
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'Error bypassing Cloudflare', details: error.message });
   }
 });
 
