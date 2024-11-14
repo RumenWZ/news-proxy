@@ -12,13 +12,15 @@ app.use(cors());
 
 app.get('/api/news/top-headlines', async (req, res) => {
   const { country = 'us' } = req.query;
+  console.log(`Fetching top headlines for country: ${country}`); // Log the request
   try {
     const response = await axios.get('https://newsapi.org/v2/top-headlines', {
       params: { country, apiKey: process.env.NEWSAPI_KEY },
     });
     res.json(response.data);
   } catch (error) {
-    res.status(500).json({ error: 'Error fetching data from NewsAPI' });
+    console.error('Error fetching data from NewsAPI:', error); // Log error details
+    res.status(500).json({ error: 'Error fetching data from NewsAPI', details: error.message });
   }
 });
 
