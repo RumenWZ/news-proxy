@@ -33,6 +33,28 @@ const getDataWithCloudflareBypass = async (url, params) => {
   }
 };
 
+app.get('/api/mediastack/advanced-search', async (req, res) => {
+  const { keywords, countries, start_date, end_date, categories, sort, limit } = req.query;
+
+  const params = {
+    access_key: process.env.MEDIASTACK_KEY,
+    keywords,
+    countries,
+    categories,
+    sort,
+    date: start_date && end_date ? `${start_date},${end_date}` : '',
+    limit,
+  };
+
+  try {
+    const response = await axios.get('http://api.mediastack.com/v1/news', { params });
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error fetching data from Mediastack:', error);
+    res.status(500).json({ error: 'Error fetching data from Mediastack' });
+  }
+});
+
 app.get('/api/news/top-headlines', async (req, res) => {
   const { country = 'us' } = req.query;
   console.log(`Fetching top headlines for country: ${country}`); // Log the request
