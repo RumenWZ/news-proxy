@@ -34,7 +34,7 @@ const getDataWithCloudflareBypass = async (url, params) => {
 };
 
 app.get('/api/mediastack/advanced-search', async (req, res) => {
-  const { keywords, countries, start_date, end_date, categories, sort, limit } = req.query;
+  const { keywords, countries, start_date, end_date, categories, sort, limit, date } = req.query;
 
   const params = {
     access_key: process.env.MEDIASTACK_KEY,
@@ -42,9 +42,11 @@ app.get('/api/mediastack/advanced-search', async (req, res) => {
     countries,
     categories,
     sort,
-    date: start_date && end_date ? `${start_date},${end_date}` : '',
+    date: date || (start_date && end_date ? `${start_date},${end_date}` : ''),
     limit,
   };
+
+  console.log('Proxy Params:', params); // Log the parameters being sent
 
   try {
     const response = await axios.get('http://api.mediastack.com/v1/news', { params });
